@@ -1,5 +1,5 @@
 -- ==========================================
--- 白祈专属菜单 (极简紧凑版 + 完美同步悬浮球)
+-- 白祈专属菜单 (最终完整版)
 -- 仅限账号 ID: 10497218129 使用
 -- ==========================================
 local MyUserId = 10497218129 
@@ -183,7 +183,7 @@ TabBar.ZIndex = 2
 local function CreateTabButton(text, yPos)
     local btn = Instance.new("TextButton")
     btn.Parent = TabBar
-    btn.Size = UDim2.new(0.9, 0, 0, 28) -- 缩小分类按钮
+    btn.Size = UDim2.new(0.9, 0, 0, 28)
     btn.Position = UDim2.new(0.05, 0, 0, yPos)
     btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     btn.BackgroundTransparency = 1
@@ -218,7 +218,7 @@ local function CreatePage()
     sf.Size = UDim2.new(1, 0, 1, 0)
     sf.BackgroundTransparency = 1
     sf.BorderSizePixel = 0
-    sf.CanvasSize = UDim2.new(0, 0, 0, 400) -- 缩小画布
+    sf.CanvasSize = UDim2.new(0, 0, 0, 400)
     sf.ScrollBarThickness = 3
     sf.ScrollBarImageColor3 = Theme.TitleColor
     sf.ScrollBarImageTransparency = 0.3
@@ -248,12 +248,12 @@ tabs[3].Button.MouseButton1Click:Connect(function() SwitchTab(Page3, tabs[3]) en
 SwitchTab(Page1, tabs[1])
 
 -- ==========================================
--- 5. 悬浮球 (绝对中心点同步逻辑)
+-- 5. 悬浮球
 -- ==========================================
 local FloatBtn = Instance.new("TextButton")
 FloatBtn.Parent = ScreenGui
 FloatBtn.Size = UDim2.new(0, 40, 0, 40)
-FloatBtn.AnchorPoint = Vector2.new(0.5, 0.5) -- 锚点在正中心
+FloatBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 FloatBtn.Position = UDim2.new(0.5, 0, 0.5, 0) 
 FloatBtn.BackgroundColor3 = Theme.TitleColor
 FloatBtn.Text = "白"
@@ -287,7 +287,6 @@ local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     if not isMinimized then
         isMinimized = true 
-        -- 计算大窗口中心点
         local centerX = MainFrame.AbsolutePosition.X + MainFrame.AbsoluteSize.X / 2
         local centerY = MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y / 2
         FloatBtn.Position = UDim2.fromOffset(centerX, centerY)
@@ -299,7 +298,6 @@ end)
 FloatBtn.MouseButton1Click:Connect(function()
     if isMinimized then
         isMinimized = false 
-        -- 展开时以球为中心，并加上边界限制防飞出屏幕
         local screenSize = ScreenGui.AbsoluteSize
         local limitX = math.clamp(FloatBtn.AbsolutePosition.X, MainFrame.AbsoluteSize.X / 2, screenSize.X - MainFrame.AbsoluteSize.X / 2)
         local limitY = math.clamp(FloatBtn.AbsolutePosition.Y, MainFrame.AbsoluteSize.Y / 2, screenSize.Y - MainFrame.AbsoluteSize.Y / 2)
@@ -316,7 +314,7 @@ end)
 local function CreateToggle(parentPage, text, yPos, initialValue, callback)
     local container = Instance.new("Frame")
     container.Parent = parentPage
-    container.Size = UDim2.new(0.95, 0, 0, 28) -- 高度压缩到 28
+    container.Size = UDim2.new(0.95, 0, 0, 28)
     container.Position = UDim2.new(0.025, 0, 0, yPos)
     container.BackgroundColor3 = Theme.BtnColor
     container.BackgroundTransparency = 0.1
@@ -337,7 +335,7 @@ local function CreateToggle(parentPage, text, yPos, initialValue, callback)
 
     local switchBg = Instance.new("Frame")
     switchBg.Parent = container
-    switchBg.Size = UDim2.new(0, 32, 0, 16) -- 开关极小化
+    switchBg.Size = UDim2.new(0, 32, 0, 16)
     switchBg.Position = UDim2.new(1, -38, 0.5, -8)
     switchBg.BackgroundColor3 = Theme.SwitchOff
     switchBg.BorderSizePixel = 0
@@ -375,7 +373,7 @@ end
 local function CreateInput(parentPage, placeholder, yPos, textColor)
     local input = Instance.new("TextBox")
     input.Parent = parentPage
-    input.Size = UDim2.new(0.95, 0, 0, 26) -- 输入框极小化
+    input.Size = UDim2.new(0.95, 0, 0, 26)
     input.Position = UDim2.new(0.025, 0, 0, yPos)
     input.BackgroundColor3 = Theme.InputBg
     input.BackgroundTransparency = 0.1
@@ -392,10 +390,8 @@ local function CreateInput(parentPage, placeholder, yPos, textColor)
 end
 
 -- ==========================================
--- 7. 功能实现 (紧凑排版)
+-- 7. 功能实现 (基础)
 -- ==========================================
-
--- [Page 1: 基础]
 local SpeedInput = CreateInput(Page1, "输入行走速度", 10, Theme.TextColor) SpeedInput.Text = "100"
 local speedActive = false
 CreateToggle(Page1, "自定义速度", 42, false, function(Value)
@@ -439,28 +435,66 @@ end)
 local BoostFrame = boostToggleData.Frame BoostFrame.Visible = false 
 CreateToggle(Page1, "开启飞行", 214, false, function(Value)
     isFlying = Value local char = Player.Character
-    if not char then return end local hrp = char:FindFirstChild("HumanoidRootPart") local hum = char:FindFirstChild("Humanoid") if not hrp or not hum then return end
+    if not char then return end 
+    local hrp = char:FindFirstChild("HumanoidRootPart") 
+    local hum = char:FindFirstChild("Humanoid") 
+    if not hrp or not hum then return end
+    
     if isFlying then
-        BoostFrame.Visible = true if isLanding then isLanding = false end hum.PlatformStand = true
-        local bv = Instance.new("BodyVelocity", hrp) bv.Name = "LocalFly" bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) bv.Velocity = Vector3.new(0, 0, 0)
-        local bg = Instance.new("BodyGyro", hrp) bg.Name = "LocalFlyGyro" bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) bg.P = 1e4 bg.CFrame = hrp.CFrame
+        BoostFrame.Visible = true 
+        if isLanding then isLanding = false end 
+        
+        hum.PlatformStand = true
+        
+        local bf = Instance.new("BodyForce", hrp)
+        bf.Name = "FlyForce"
+        bf.Force = Vector3.new(0, workspace.Gravity * hrp.AssemblyMass, 0)
+
+        local bv = Instance.new("BodyVelocity", hrp) 
+        bv.Name = "LocalFly" 
+        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) 
+        bv.Velocity = Vector3.new(0, 0, 0)
+        
         if flyConnection then flyConnection:Disconnect() end
         flyConnection = RunService.RenderStepped:Connect(function()
             if not isFlying or not char or not char.Parent then return end
-            local currentHrp = char:FindFirstChild("HumanoidRootPart") local currentHum = char:FindFirstChild("Humanoid")
+            local currentHrp = char:FindFirstChild("HumanoidRootPart") 
+            local currentHum = char:FindFirstChild("Humanoid")
+            
             if currentHrp and currentHum and currentHrp:FindFirstChild("LocalFly") then
-                local bvInBody = currentHrp.LocalFly local bgInBody = currentHrp:FindFirstChild("LocalFlyGyro") local moveDir = currentHum.MoveDirection local currentFlySpeed = isBoosting and 200 or 50 
-                if bgInBody then bgInBody.CFrame = workspace.CurrentCamera.CFrame end
-                if moveDir.Magnitude > 0.1 then bvInBody.Velocity = moveDir * currentFlySpeed else bvInBody.Velocity = Vector3.new(0, 0, 0) end
+                local bvInBody = currentHrp.LocalFly
+                local moveDir = currentHum.MoveDirection
+                local currentFlySpeed = isBoosting and 200 or 50 
+                
+                local cam = workspace.CurrentCamera
+                local flyDirection = cam.CFrame.LookVector
+                
+                if moveDir.Magnitude > 0.1 then 
+                    bvInBody.Velocity = flyDirection * currentFlySpeed 
+                    currentHrp.CFrame = CFrame.lookAt(currentHrp.Position, currentHrp.Position + flyDirection)
+                else 
+                    bvInBody.Velocity = Vector3.new(0, 0, 0) 
+                end
             end
         end)
     else
-        BoostFrame.Visible = false boostToggleData.SetState(false) isBoosting = false hum.PlatformStand = false hum.AutoRotate = true 
-        TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.5), {FieldOfView = defaultFOV}):Play() isLanding = true
+        BoostFrame.Visible = false 
+        boostToggleData.SetState(false) 
+        isBoosting = false 
+        
+        hum.PlatformStand = false 
+        hum.AutoRotate = true 
+        if hrp:FindFirstChild("FlyForce") then hrp.FlyForce:Destroy() end
+        if hrp:FindFirstChild("LocalFly") then hrp.LocalFly:Destroy() end
+        
+        TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.5), {FieldOfView = defaultFOV}):Play() 
+        isLanding = true
     end
 end)
 
--- [Page 2: 战斗]
+-- ==========================================
+-- 8. 功能实现 (战斗)
+-- ==========================================
 local isLocked = false local lockConnection = nil local lockedCFrame = nil
 CreateToggle(Page2, "角色锁定", 10, false, function(Value)
     isLocked = Value local char = Player.Character
@@ -555,7 +589,9 @@ CreateToggle(Page2, "防甩飞", 214, false, function(Value)
     else if antiFlingConnection then antiFlingConnection:Disconnect() end end
 end)
 
--- [Page 3: 系统]
+-- ==========================================
+-- 9. 功能实现 (系统)
+-- ==========================================
 local isShieldActive = false
 CreateToggle(Page3, "主动反击盾", 10, false, function(Value)
     isShieldActive = Value
@@ -611,7 +647,7 @@ local closeMenuBtnCorner = Instance.new("UICorner") closeMenuBtnCorner.CornerRad
 local closeMenuBtnStroke = Instance.new("UIStroke") closeMenuBtnStroke.Color = Color3.fromRGB(255, 200, 200) closeMenuBtnStroke.Thickness = 1 closeMenuBtnStroke.Parent = closeMenuBtn
 
 -- ==========================================
--- 8. 关闭逻辑
+-- 10. 关闭逻辑
 -- ==========================================
 local function DestroyMenu()
     if renderConnection then renderConnection:Disconnect() end if flyConnection then flyConnection:Disconnect() end if lockConnection then lockConnection:Disconnect() end if aimbotConnection then aimbotConnection:Disconnect() end if aimbotNpcConnection then aimbotNpcConnection:Disconnect() end if trackingConnection then trackingConnection:Disconnect() end if antiFlingConnection then antiFlingConnection:Disconnect() end
@@ -625,7 +661,7 @@ local function DestroyMenu()
         if hum then hum.PlatformStand = false hum.WalkSpeed = 16 hum.JumpPower = 50 hum.AutoRotate = true end
         if hrp then
             hrp.Velocity = Vector3.new(0, 0, 0) hrp.RotVelocity = Vector3.new(0, 0, 0) 
-            if hrp:FindFirstChild("LocalFly") then hrp.LocalFly:Destroy() end if hrp:FindFirstChild("LocalFlyGyro") then hrp.LocalFlyGyro:Destroy() end if hrp:FindFirstChild("FlingSpin") then hrp.FlingSpin:Destroy() end if hrp:FindFirstChild("MySpin") then hrp.MySpin:Destroy() end
+            if hrp:FindFirstChild("LocalFly") then hrp.LocalFly:Destroy() end if hrp:FindFirstChild("LocalFlyGyro") then hrp.LocalFlyGyro:Destroy() end if hrp:FindFirstChild("FlingSpin") then hrp.FlingSpin:Destroy() end if hrp:FindFirstChild("MySpin") then hrp.MySpin:Destroy() end if hrp:FindFirstChild("FlyForce") then hrp.FlyForce:Destroy() end
         end
     end
 
