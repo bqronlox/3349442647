@@ -34,6 +34,42 @@ if Player.UserId ~= MyUserId then
     text.Font = Enum.Font.GothamBold
     text.Parent = bg
     local punishSound = Instance.new("Sound")
+-- ==========================================
+-- 白祈专属菜单 (最终完美版)
+-- 仅限账号 ID: 10497218129 使用
+-- ==========================================
+local MyUserId = 10497218129 
+
+local CoreGui = game:GetService("CoreGui")
+local Player = game.Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+local UserInputService = game:GetService("UserInputService")
+
+-- 🚨 身份验证拦截
+if Player.UserId ~= MyUserId then
+    local badGui = Instance.new("ScreenGui")
+    badGui.Name = "PunishGui"
+    badGui.Parent = CoreGui
+    badGui.IgnoreGuiInset = true
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    bg.BorderSizePixel = 0
+    bg.Parent = badGui
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.new(1, 0, 0, 50)
+    text.Position = UDim2.new(0, 0, 0.5, -25)
+    text.BackgroundTransparency = 1
+    text.Text = "警告：未授权访问\n即将断开连接..."
+    text.TextColor3 = Color3.fromRGB(255, 50, 50)
+    text.TextScaled = true
+    text.Font = Enum.Font.GothamBold
+    text.Parent = bg
+    local punishSound = Instance.new("Sound")
     punishSound.SoundId = "rbxassetid://17684982508" 
     punishSound.Parent = SoundService
     punishSound.Volume = 3
@@ -434,7 +470,7 @@ local boostToggleData = CreateToggle(Page1, "极速冲刺 (FOV增强)", 204, fal
 end)
 local BoostFrame = boostToggleData.Frame BoostFrame.Visible = false 
 
--- 🚀 完美悬浮飞行 (摇杆+视角联合控制)
+-- 🚀 第一版经典飞行 (人物面朝视角方向)
 CreateToggle(Page1, "开启飞行 (视角控制)", 176, false, function(Value)
     isFlying = Value 
     local char = Player.Character
@@ -448,21 +484,22 @@ CreateToggle(Page1, "开启飞行 (视角控制)", 176, false, function(Value)
         if isLanding then isLanding = false end 
         
         hum.PlatformStand = false 
+        hum.AutoRotate = false -- 关闭系统自动转身
         
         local bf = Instance.new("BodyForce", hrp)
         bf.Name = "FlyForce"
         bf.Force = Vector3.new(0, workspace.Gravity * hrp.AssemblyMass, 0)
+        
+        local bv = Instance.new("BodyVelocity", hrp) 
+        bv.Name = "FlyVel" 
+        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) 
+        bv.Velocity = Vector3.new(0, 0, 0)
         
         local bg = Instance.new("BodyGyro", hrp)
         bg.Name = "FlyGyro"
         bg.P = 1e4
         bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
         bg.CFrame = hrp.CFrame
-        
-        local bv = Instance.new("BodyVelocity", hrp) 
-        bv.Name = "FlyVel" 
-        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) 
-        bv.Velocity = Vector3.new(0, 0, 0)
         
         if flyConnection then flyConnection:Disconnect() end
         flyConnection = RunService.RenderStepped:Connect(function()
@@ -475,17 +512,13 @@ CreateToggle(Page1, "开启飞行 (视角控制)", 176, false, function(Value)
                 local bgInBody = currentHrp.FlyGyro
                 local moveDir = currentHum.MoveDirection
                 local cam = workspace.CurrentCamera
-                local currentFlySpeed = isBoosting and 200 or 50 
+                local currentFlySpeed = isBoosting and 150 or 50 
                 
-                if currentHum:GetState() ~= Enum.HumanoidStateType.Flying and currentHum:GetState() ~= Enum.HumanoidStateType.Freefall then
-                    currentHum:ChangeState(Enum.HumanoidStateType.Freefall)
-                end
-                
-                if bgInBody then bgInBody.CFrame = cam.CFrame end
+                bgInBody.CFrame = cam.CFrame
+                currentHrp.CFrame = CFrame.lookAt(currentHrp.Position, currentHrp.Position + cam.CFrame.LookVector)
                 
                 if moveDir.Magnitude > 0.1 then 
-                    local flyDir = (cam.CFrame.LookVector * (-moveDir.Z) + cam.CFrame.RightVector * moveDir.X).Unit
-                    bvInBody.Velocity = flyDir * currentFlySpeed 
+                    bvInBody.Velocity = cam.CFrame.LookVector * currentFlySpeed 
                 else 
                     bvInBody.Velocity = Vector3.new(0, 0, 0) 
                 end
@@ -497,7 +530,7 @@ CreateToggle(Page1, "开启飞行 (视角控制)", 176, false, function(Value)
         isBoosting = false 
         
         hum.PlatformStand = false 
-        hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+        hum.AutoRotate = true 
         
         if hrp:FindFirstChild("FlyForce") then hrp.FlyForce:Destroy() end
         if hrp:FindFirstChild("FlyVel") then hrp.FlyVel:Destroy() end
