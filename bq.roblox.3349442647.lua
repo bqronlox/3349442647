@@ -1,5 +1,5 @@
 -- ==========================================
--- 白祈专属菜单 (极简紧凑+完美飞行版)
+-- 白祈专属菜单 (最终完美版)
 -- 仅限账号 ID: 10497218129 使用
 -- ==========================================
 local MyUserId = 10497218129 
@@ -68,7 +68,7 @@ local Theme = {
 -- ==========================================
 local LoadingFrame = Instance.new("Frame")
 LoadingFrame.Parent = ScreenGui
-LoadingFrame.Size = UDim2.new(0, 180, 0, 70) -- 缩小
+LoadingFrame.Size = UDim2.new(0, 180, 0, 70) 
 LoadingFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 LoadingFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 LoadingFrame.BackgroundColor3 = Theme.BgColor
@@ -101,7 +101,7 @@ LoadStatus.Position = UDim2.new(0, 0, 0, 35)
 -- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Parent = ScreenGui
-MainFrame.Size = UDim2.new(0.90, 0, 0.70, 0) -- 稍微调整比例
+MainFrame.Size = UDim2.new(0.90, 0, 0.70, 0) 
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.BgColor
@@ -126,7 +126,7 @@ local BgImageCorner = Instance.new("UICorner") BgImageCorner.CornerRadius = UDim
 -- 标题栏
 local TitleBar = Instance.new("Frame")
 TitleBar.Parent = MainFrame
-TitleBar.Size = UDim2.new(1, 0, 0, 35) -- 标题栏缩小
+TitleBar.Size = UDim2.new(1, 0, 0, 35) 
 TitleBar.BackgroundColor3 = Theme.TitleColor
 TitleBar.BorderSizePixel = 0
 TitleBar.ZIndex = 10 
@@ -183,7 +183,7 @@ TabBar.ZIndex = 2
 local function CreateTabButton(text, yPos)
     local btn = Instance.new("TextButton")
     btn.Parent = TabBar
-    btn.Size = UDim2.new(0.9, 0, 0, 24) -- 高度再缩小
+    btn.Size = UDim2.new(0.9, 0, 0, 24) 
     btn.Position = UDim2.new(0.05, 0, 0, yPos)
     btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     btn.BackgroundTransparency = 1
@@ -218,7 +218,7 @@ local function CreatePage()
     sf.Size = UDim2.new(1, 0, 1, 0)
     sf.BackgroundTransparency = 1
     sf.BorderSizePixel = 0
-    sf.CanvasSize = UDim2.new(0, 0, 0, 320) -- 画布高度大缩减
+    sf.CanvasSize = UDim2.new(0, 0, 0, 320) 
     sf.ScrollBarThickness = 2
     sf.ScrollBarImageColor3 = Theme.TitleColor
     sf.ScrollBarImageTransparency = 0.3
@@ -309,12 +309,12 @@ FloatBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- 6. 极简组件生成函数 (再次压缩尺寸)
+-- 6. 极简组件
 -- ==========================================
 local function CreateToggle(parentPage, text, yPos, initialValue, callback)
     local container = Instance.new("Frame")
     container.Parent = parentPage
-    container.Size = UDim2.new(0.96, 0, 0, 24) -- 高度降至24
+    container.Size = UDim2.new(0.96, 0, 0, 24)
     container.Position = UDim2.new(0.02, 0, 0, yPos)
     container.BackgroundColor3 = Theme.BtnColor
     container.BackgroundTransparency = 0.1
@@ -335,7 +335,7 @@ local function CreateToggle(parentPage, text, yPos, initialValue, callback)
 
     local switchBg = Instance.new("Frame")
     switchBg.Parent = container
-    switchBg.Size = UDim2.new(0, 28, 0, 14) -- 开关极小化
+    switchBg.Size = UDim2.new(0, 28, 0, 14) 
     switchBg.Position = UDim2.new(1, -32, 0.5, -7)
     switchBg.BackgroundColor3 = Theme.SwitchOff
     switchBg.BorderSizePixel = 0
@@ -373,7 +373,7 @@ end
 local function CreateInput(parentPage, placeholder, yPos, textColor)
     local input = Instance.new("TextBox")
     input.Parent = parentPage
-    input.Size = UDim2.new(0.96, 0, 0, 24) -- 高度降至24
+    input.Size = UDim2.new(0.96, 0, 0, 24) 
     input.Position = UDim2.new(0.02, 0, 0, yPos)
     input.BackgroundColor3 = Theme.InputBg
     input.BackgroundTransparency = 0.1
@@ -434,42 +434,77 @@ local boostToggleData = CreateToggle(Page1, "极速冲刺 (FOV增强)", 204, fal
 end)
 local BoostFrame = boostToggleData.Frame BoostFrame.Visible = false 
 
--- 🚀 全新丝滑飞行
+-- 🚀 完美悬浮飞行 (摇杆+视角联合控制)
 CreateToggle(Page1, "开启飞行 (视角控制)", 176, false, function(Value)
-    isFlying = Value local char = Player.Character
-    if not char then return end local hrp = char:FindFirstChild("HumanoidRootPart") local hum = char:FindFirstChild("Humanoid") if not hrp or not hum then return end
+    isFlying = Value 
+    local char = Player.Character
+    if not char then return end 
+    local hrp = char:FindFirstChild("HumanoidRootPart") 
+    local hum = char:FindFirstChild("Humanoid") 
+    if not hrp or not hum then return end
     
     if isFlying then
-        BoostFrame.Visible = true if isLanding then isLanding = false end 
-        hum.PlatformStand = true -- 解除所有物理限制
+        BoostFrame.Visible = true 
+        if isLanding then isLanding = false end 
+        
+        hum.PlatformStand = false 
+        
+        local bf = Instance.new("BodyForce", hrp)
+        bf.Name = "FlyForce"
+        bf.Force = Vector3.new(0, workspace.Gravity * hrp.AssemblyMass, 0)
+        
+        local bg = Instance.new("BodyGyro", hrp)
+        bg.Name = "FlyGyro"
+        bg.P = 1e4
+        bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+        bg.CFrame = hrp.CFrame
         
         local bv = Instance.new("BodyVelocity", hrp) 
-        bv.Name = "LocalFly" 
+        bv.Name = "FlyVel" 
         bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) 
         bv.Velocity = Vector3.new(0, 0, 0)
         
         if flyConnection then flyConnection:Disconnect() end
         flyConnection = RunService.RenderStepped:Connect(function()
             if not isFlying or not char or not char.Parent then return end
-            local currentHrp = char:FindFirstChild("HumanoidRootPart") local currentHum = char:FindFirstChild("Humanoid")
-            if currentHrp and currentHum and currentHrp:FindFirstChild("LocalFly") then
-                local bvInBody = currentHrp.LocalFly local moveDir = currentHum.MoveDirection local currentFlySpeed = isBoosting and 200 or 50 
+            local currentHrp = char:FindFirstChild("HumanoidRootPart") 
+            local currentHum = char:FindFirstChild("Humanoid")
+            
+            if currentHrp and currentHum and currentHrp:FindFirstChild("FlyVel") then
+                local bvInBody = currentHrp.FlyVel
+                local bgInBody = currentHrp.FlyGyro
+                local moveDir = currentHum.MoveDirection
                 local cam = workspace.CurrentCamera
+                local currentFlySpeed = isBoosting and 200 or 50 
+                
+                if currentHum:GetState() ~= Enum.HumanoidStateType.Flying and currentHum:GetState() ~= Enum.HumanoidStateType.Freefall then
+                    currentHum:ChangeState(Enum.HumanoidStateType.Freefall)
+                end
+                
+                if bgInBody then bgInBody.CFrame = cam.CFrame end
                 
                 if moveDir.Magnitude > 0.1 then 
-                    -- 视角指向哪就飞向哪
-                    bvInBody.Velocity = cam.CFrame.LookVector * currentFlySpeed 
-                    currentHrp.CFrame = CFrame.lookAt(currentHrp.Position, currentHrp.Position + cam.CFrame.LookVector)
+                    local flyDir = (cam.CFrame.LookVector * (-moveDir.Z) + cam.CFrame.RightVector * moveDir.X).Unit
+                    bvInBody.Velocity = flyDir * currentFlySpeed 
                 else 
                     bvInBody.Velocity = Vector3.new(0, 0, 0) 
                 end
             end
         end)
     else
-        BoostFrame.Visible = false boostToggleData.SetState(false) isBoosting = false 
-        hum.PlatformStand = false hum.AutoRotate = true 
-        if hrp:FindFirstChild("LocalFly") then hrp.LocalFly:Destroy() end
-        TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.5), {FieldOfView = defaultFOV}):Play() isLanding = true
+        BoostFrame.Visible = false 
+        boostToggleData.SetState(false) 
+        isBoosting = false 
+        
+        hum.PlatformStand = false 
+        hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+        
+        if hrp:FindFirstChild("FlyForce") then hrp.FlyForce:Destroy() end
+        if hrp:FindFirstChild("FlyVel") then hrp.FlyVel:Destroy() end
+        if hrp:FindFirstChild("FlyGyro") then hrp.FlyGyro:Destroy() end
+        
+        TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.5), {FieldOfView = defaultFOV}):Play() 
+        isLanding = true
     end
 end)
 
@@ -559,15 +594,32 @@ CreateToggle(Page2, "究极暴力甩飞", 148, false, function(Value)
     end
 end)
 
+-- 🚨 强力防甩飞 (坐标锚定)
 local isAntiFling = false local antiFlingConnection = nil
-CreateToggle(Page2, "防甩飞", 176, false, function(Value)
-    isAntiFling = Value local char = Player.Character
+CreateToggle(Page2, "强力防甩飞", 176, false, function(Value)
+    isAntiFling = Value 
+    local char = Player.Character
     if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
     if isAntiFling then
-        antiFlingConnection = RunService.Heartbeat:Connect(function()
-            if isAntiFling and char and char:FindFirstChild("HumanoidRootPart") then local hrp = char.HumanoidRootPart if hrp.Velocity.Magnitude > 150 or hrp.RotVelocity.Magnitude > 20 then hrp.Velocity = Vector3.new(0, 0, 0) hrp.RotVelocity = Vector3.new(0, 0, 0) end end
+        local anchorCF = hrp.CFrame 
+        antiFlingConnection = RunService.RenderStepped:Connect(function()
+            if isAntiFling and char and char:FindFirstChild("HumanoidRootPart") then
+                local currentHrp = char.HumanoidRootPart
+                if currentHrp.Velocity.Magnitude > 100 or currentHrp.RotVelocity.Magnitude > 10 then
+                    currentHrp.Velocity = Vector3.new(0, 0, 0)
+                    currentHrp.RotVelocity = Vector3.new(0, 0, 0)
+                    currentHrp.CFrame = anchorCF
+                else
+                    anchorCF = currentHrp.CFrame
+                end
+            end
         end)
-    else if antiFlingConnection then antiFlingConnection:Disconnect() end end
+    else 
+        if antiFlingConnection then antiFlingConnection:Disconnect() end 
+    end
 end)
 
 -- ==========================================
@@ -642,7 +694,7 @@ local function DestroyMenu()
         if hum then hum.PlatformStand = false hum.WalkSpeed = 16 hum.JumpPower = 50 hum.AutoRotate = true end
         if hrp then
             hrp.Velocity = Vector3.new(0, 0, 0) hrp.RotVelocity = Vector3.new(0, 0, 0) 
-            if hrp:FindFirstChild("LocalFly") then hrp.LocalFly:Destroy() end if hrp:FindFirstChild("LocalFlyGyro") then hrp.LocalFlyGyro:Destroy() end if hrp:FindFirstChild("FlingSpin") then hrp.FlingSpin:Destroy() end if hrp:FindFirstChild("MySpin") then hrp.MySpin:Destroy() end if hrp:FindFirstChild("FlyForce") then hrp.FlyForce:Destroy() end
+            if hrp:FindFirstChild("LocalFly") then hrp.LocalFly:Destroy() end if hrp:FindFirstChild("LocalFlyGyro") then hrp.LocalFlyGyro:Destroy() end if hrp:FindFirstChild("FlingSpin") then hrp.FlingSpin:Destroy() end if hrp:FindFirstChild("MySpin") then hrp.MySpin:Destroy() end if hrp:FindFirstChild("FlyForce") then hrp.FlyForce:Destroy() end if hrp:FindFirstChild("FlyVel") then hrp.FlyVel:Destroy() end if hrp:FindFirstChild("FlyGyro") then hrp.FlyGyro:Destroy() end
         end
     end
 
