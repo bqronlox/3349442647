@@ -1,41 +1,6 @@
-local MyUserId = 10497218129
-
-local CoreGui = game:GetService("CoreGui")
-local Player = game.Players.LocalPlayer
-local VirtualUser = game:GetService("VirtualUser")
-local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local TweenService = game:GetService("TweenService")
-local SoundService = game:GetService("SoundService")
-local UserInputService = game:GetService("UserInputService")
-
--- 🚨 身份验证拦截：如果 ID 不对，播放冰冰冰音频并踢人！
-if Player.UserId ~= MyUserId then
-    local badGui = Instance.new("ScreenGui")
-    badGui.Name = "PunishGui"
-    badGui.Parent = CoreGui
-    badGui.IgnoreGuiInset = true
-    
-    local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(1, 0, 1, 0)
-    bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    bg.BorderSizePixel = 0
-    bg.Parent = badGui
-    
-    local text = Instance.new("TextLabel")
-    text.Size = UDim2.new(1, 0, 0, 50)
-    text.Position = UDim2.new(0, 0, 0.5, -25)
-    text.BackgroundTransparency = 1
-    text.Text = "警告：未授权访问\n即将断开连接..."
-    text.TextColor3 = Color3.fromRGB(255, 50, 50)
-    text.TextScaled = true
-    text.Font = Enum.Font.GothamBold
-    text.Parent = bg
-    
-    local punishSound = Instance.new("Sound")
-    punishSound.SoundId = "rbxassetid://17684982508" -- 冰冰冰音效
 -- ==========================================
--- 白祈专属菜单 (超大屏无黑框版)
+-- 白祈专属菜单 (左侧分类栏版)
+-- 仅限账号 ID: 10497218129 使用
 -- ==========================================
 local MyUserId = 10497218129 
 
@@ -86,7 +51,6 @@ ScreenGui.Name = "BaiQiMenu"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- 主题颜色
 local Theme = {
     BgColor = Color3.fromRGB(245, 248, 250),        
     TitleColor = Color3.fromRGB(130, 200, 150),     
@@ -95,7 +59,9 @@ local Theme = {
     InputBg = Color3.fromRGB(240, 242, 245),        
     SwitchOff = Color3.fromRGB(200, 200, 200),      
     SwitchOn = Color3.fromRGB(130, 200, 150),       
-    LineColor = Color3.fromRGB(220, 225, 230)       
+    LineColor = Color3.fromRGB(220, 225, 230),
+    TabBgColor = Color3.fromRGB(235, 240, 235),
+    TabHover = Color3.fromRGB(220, 235, 220)
 }
 
 -- ==========================================
@@ -115,7 +81,7 @@ local LoadTitle = Instance.new("TextLabel")
 LoadTitle.Parent = LoadingFrame
 LoadTitle.Size = UDim2.new(1, 0, 0, 30)
 LoadTitle.BackgroundTransparency = 1
-LoadTitle.Text = "身份验证"
+LoadTitle.Text = "白祈身份验证"
 LoadTitle.TextColor3 = Theme.TitleColor
 LoadTitle.Font = Enum.Font.GothamBold
 LoadTitle.TextSize = 16
@@ -132,11 +98,10 @@ LoadStatus.TextSize = 14
 LoadStatus.Position = UDim2.new(0, 0, 0, 40)
 
 -- ==========================================
--- 2. 主菜单界面 (超大占屏比)
+-- 2. 主菜单界面
 -- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Parent = ScreenGui
--- 占屏幕 92% 宽，80% 高
 MainFrame.Size = UDim2.new(0.92, 0, 0.80, 0)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -145,19 +110,17 @@ MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Visible = false
 MainFrame.ClipsDescendants = true
-
--- 不再强制 4:3，适应屏幕比例
 local MainCorner = Instance.new("UICorner") MainCorner.CornerRadius = UDim.new(0, 12) MainCorner.Parent = MainFrame
 local MainStroke = Instance.new("UIStroke") MainStroke.Color = Theme.LineColor MainStroke.Thickness = 2 MainStroke.Parent = MainFrame
 
--- 固定背景图片
+-- 背景图片
 local BgImage = Instance.new("ImageLabel")
 BgImage.Parent = MainFrame
 BgImage.Size = UDim2.new(1, 0, 1, 0)
 BgImage.BackgroundTransparency = 1
 BgImage.ZIndex = 0
 BgImage.Image = "https://raw.githubusercontent.com/bqronlox/3349442647/main/1785143788776.png" 
-BgImage.ImageTransparency = 0.75 
+BgImage.ImageTransparency = 0.8 
 BgImage.ScaleType = Enum.ScaleType.Crop
 local BgImageCorner = Instance.new("UICorner") BgImageCorner.CornerRadius = UDim.new(0, 12) BgImageCorner.Parent = BgImage
 
@@ -167,7 +130,7 @@ TitleBar.Parent = MainFrame
 TitleBar.Size = UDim2.new(1, 0, 0, 45)
 TitleBar.BackgroundColor3 = Theme.TitleColor
 TitleBar.BorderSizePixel = 0
-TitleBar.ZIndex = 10 -- 最高层级，防止无法拖动
+TitleBar.ZIndex = 10 
 TitleBar.Active = true
 local TitleBarCorner = Instance.new("UICorner") TitleBarCorner.CornerRadius = UDim.new(0, 12) TitleBarCorner.Parent = TitleBar
 
@@ -183,38 +146,16 @@ TitleText.TextXAlignment = Enum.TextXAlignment.Left
 TitleText.Position = UDim2.new(0, 15, 0, 0)
 TitleText.ZIndex = 11
 
--- 最小化
-local MinBtn = Instance.new("TextButton")
-MinBtn.Parent = TitleBar
-MinBtn.Size = UDim2.new(0, 45, 1, 0)
-MinBtn.Position = UDim2.new(1, -90, 0, 0)
-MinBtn.BackgroundTransparency = 1
-MinBtn.Text = "-"
-MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinBtn.Font = Enum.Font.GothamBold
-MinBtn.TextSize = 20
-MinBtn.ZIndex = 11
+-- 最小化/关闭按钮
+local MinBtn = Instance.new("TextButton") MinBtn.Parent = TitleBar MinBtn.Size = UDim2.new(0, 45, 1, 0) MinBtn.Position = UDim2.new(1, -90, 0, 0) MinBtn.BackgroundTransparency = 1 MinBtn.Text = "-" MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255) MinBtn.Font = Enum.Font.GothamBold MinBtn.TextSize = 20 MinBtn.ZIndex = 11
+local CloseBtn = Instance.new("TextButton") CloseBtn.Parent = TitleBar CloseBtn.Size = UDim2.new(0, 45, 1, 0) CloseBtn.Position = UDim2.new(1, -45, 0, 0) CloseBtn.BackgroundTransparency = 1 CloseBtn.Text = "X" CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255) CloseBtn.Font = Enum.Font.GothamBold CloseBtn.TextSize = 16 CloseBtn.ZIndex = 11
 
--- 关闭
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Parent = TitleBar
-CloseBtn.Size = UDim2.new(0, 45, 1, 0)
-CloseBtn.Position = UDim2.new(1, -45, 0, 0)
-CloseBtn.BackgroundTransparency = 1
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 16
-CloseBtn.ZIndex = 11
-
--- 拖拽逻辑 (修复被遮挡问题)
+-- 拖拽逻辑
 local dragging, dragInput, dragStart, startPos
 TitleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         if input.Target == MinBtn or input.Target == CloseBtn then return end
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
+        dragging = true dragStart = input.Position startPos = MainFrame.Position
         input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
     end
 end)
@@ -228,26 +169,98 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- 滚动容器
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Parent = MainFrame
-ScrollFrame.Size = UDim2.new(1, 0, 1, -45)
-ScrollFrame.Position = UDim2.new(0, 0, 0, 45)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.BorderSizePixel = 0
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 700) -- 缩小画布，因为按键变小了
-ScrollFrame.ScrollBarThickness = 4
-ScrollFrame.ScrollBarImageColor3 = Theme.TitleColor
-ScrollFrame.ScrollBarImageTransparency = 0.3
-ScrollFrame.ZIndex = 2 
+-- ==========================================
+-- 3. 左侧分类栏 (TabBar)
+-- ==========================================
+local TabBar = Instance.new("Frame")
+TabBar.Parent = MainFrame
+TabBar.Size = UDim2.new(1/6, 0, 1, -45)
+TabBar.Position = UDim2.new(0, 0, 0, 45)
+TabBar.BackgroundColor3 = Theme.TabBgColor
+TabBar.BackgroundTransparency = 0.2
+TabBar.BorderSizePixel = 0
+TabBar.ZIndex = 2
+
+local function CreateTabButton(text, yPos)
+    local btn = Instance.new("TextButton")
+    btn.Parent = TabBar
+    btn.Size = UDim2.new(0.9, 0, 0, 36)
+    btn.Position = UDim2.new(0.05, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    btn.BackgroundTransparency = 1
+    btn.Text = text
+    btn.TextColor3 = Theme.TextColor
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 13
+    btn.ZIndex = 3
+    
+    local corner = Instance.new("UICorner") corner.CornerRadius = UDim.new(0, 6) corner.Parent = btn
+    local indicator = Instance.new("Frame") indicator.Parent = btn indicator.Size = UDim2.new(0, 3, 0.6, 0) indicator.Position = UDim2.new(0, -3, 0.2, 0) indicator.BackgroundColor3 = Theme.TitleColor indicator.BorderSizePixel = 0 indicator.Visible = false
+    local indCorner = Instance.new("UICorner") indCorner.CornerRadius = UDim.new(1, 0) indCorner.Parent = indicator
+
+    btn.MouseEnter:Connect(function() if not indicator.Visible then btn.BackgroundTransparency = 0.5 end end)
+    btn.MouseLeave:Connect(function() if not indicator.Visible then btn.BackgroundTransparency = 1 end end)
+    return {Button = btn, Indicator = indicator}
+end
 
 -- ==========================================
--- 3. 悬浮球
+-- 4. 右侧内容区 (ContentArea)
+-- ==========================================
+local ContentArea = Instance.new("Frame")
+ContentArea.Parent = MainFrame
+ContentArea.Size = UDim2.new(5/6, 0, 1, -45)
+ContentArea.Position = UDim2.new(1/6, 0, 0, 45)
+ContentArea.BackgroundTransparency = 1
+ContentArea.ZIndex = 2
+
+-- 创建 3 个滚动页面
+local function CreatePage()
+    local sf = Instance.new("ScrollingFrame")
+    sf.Parent = ContentArea
+    sf.Size = UDim2.new(1, 0, 1, 0)
+    sf.BackgroundTransparency = 1
+    sf.BorderSizePixel = 0
+    sf.CanvasSize = UDim2.new(0, 0, 0, 500)
+    sf.ScrollBarThickness = 4
+    sf.ScrollBarImageColor3 = Theme.TitleColor
+    sf.ScrollBarImageTransparency = 0.3
+    sf.Visible = false
+    return sf
+end
+
+local Page1 = CreatePage() -- 基础
+local Page2 = CreatePage() -- 战斗
+local Page3 = CreatePage() -- 系统
+
+-- Tab 切换逻辑
+local currentTab = nil
+local tabs = {}
+local function SwitchTab(page, tabData)
+    for _, p in pairs({Page1, Page2, Page3}) do p.Visible = false end
+    for _, t in pairs(tabs) do t.Indicator.Visible = false; t.Button.BackgroundTransparency = 1 end
+    
+    page.Visible = true
+    tabData.Indicator.Visible = true
+    tabData.Button.BackgroundTransparency = 0.2
+end
+
+tabs[1] = CreateTabButton("基础", 10)
+tabs[2] = CreateTabButton("战斗", 55)
+tabs[3] = CreateTabButton("系统", 100)
+
+tabs[1].Button.MouseButton1Click:Connect(function() SwitchTab(Page1, tabs[1]) end)
+tabs[2].Button.MouseButton1Click:Connect(function() SwitchTab(Page2, tabs[2]) end)
+tabs[3].Button.MouseButton1Click:Connect(function() SwitchTab(Page3, tabs[3]) end)
+SwitchTab(Page1, tabs[1]) -- 默认选中
+
+-- ==========================================
+-- 5. 悬浮球
 -- ==========================================
 local FloatBtn = Instance.new("TextButton")
 FloatBtn.Parent = ScreenGui
 FloatBtn.Size = UDim2.new(0, 45, 0, 45)
-FloatBtn.Position = UDim2.new(0, 20, 0.5, -22) 
+FloatBtn.AnchorPoint = Vector2.new(0.5, 0.5) 
+FloatBtn.Position = UDim2.new(0, 40, 0.5, 0) 
 FloatBtn.BackgroundColor3 = Theme.TitleColor
 FloatBtn.Text = "白"
 FloatBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -279,27 +292,23 @@ end)
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     if not isMinimized then
-        isMinimized = true
-        FloatBtn.Position = MainFrame.Position
-        MainFrame.Visible = false
-        FloatBtn.Visible = true
+        isMinimized = true FloatBtn.Position = MainFrame.Position MainFrame.Visible = false FloatBtn.Visible = true
     end
 end)
 FloatBtn.MouseButton1Click:Connect(function()
     if isMinimized then
-        isMinimized = false
-        MainFrame.Position = FloatBtn.Position
-        FloatBtn.Visible = false
-        MainFrame.Visible = true
+        isMinimized = false MainFrame.Position = FloatBtn.Position FloatBtn.Visible = false MainFrame.Visible = true
     end
 end)
 
--- 🎛️ 缩小版组件
-local function CreateToggle(text, yPos, initialValue, callback)
+-- ==========================================
+-- 6. 组件生成函数 (适配 5/6 宽度)
+-- ==========================================
+local function CreateToggle(parentPage, text, yPos, initialValue, callback)
     local container = Instance.new("Frame")
-    container.Parent = ScrollFrame
-    container.Size = UDim2.new(0.92, 0, 0, 32) -- 高度从 40 缩回 32
-    container.Position = UDim2.new(0.04, 0, 0, yPos)
+    container.Parent = parentPage
+    container.Size = UDim2.new(0.95, 0, 0, 32) 
+    container.Position = UDim2.new(0.025, 0, 0, yPos)
     container.BackgroundColor3 = Theme.BtnColor
     container.BackgroundTransparency = 0.1
     container.BorderSizePixel = 0
@@ -314,12 +323,12 @@ local function CreateToggle(text, yPos, initialValue, callback)
     textLabel.Text = text
     textLabel.TextColor3 = Theme.TextColor
     textLabel.Font = Enum.Font.GothamBold
-    textLabel.TextSize = 13 -- 字体稍微变小
+    textLabel.TextSize = 13 
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
 
     local switchBg = Instance.new("Frame")
     switchBg.Parent = container
-    switchBg.Size = UDim2.new(0, 36, 0, 18) -- 开关缩小
+    switchBg.Size = UDim2.new(0, 36, 0, 18) 
     switchBg.Position = UDim2.new(1, -46, 0.5, -9)
     switchBg.BackgroundColor3 = Theme.SwitchOff
     switchBg.BorderSizePixel = 0
@@ -327,7 +336,7 @@ local function CreateToggle(text, yPos, initialValue, callback)
 
     local switchDot = Instance.new("Frame")
     switchDot.Parent = switchBg
-    switchDot.Size = UDim2.new(0, 14, 0, 14) -- 圆点缩小
+    switchDot.Size = UDim2.new(0, 14, 0, 14) 
     switchDot.Position = UDim2.new(0, 2, 0.5, -7)
     switchDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     switchDot.BorderSizePixel = 0
@@ -354,11 +363,11 @@ local function CreateToggle(text, yPos, initialValue, callback)
     return {SetState = function(state) isOn = state UpdateUI(true) end, Frame = container}
 end
 
-local function CreateInput(placeholder, yPos, textColor)
+local function CreateInput(parentPage, placeholder, yPos, textColor)
     local input = Instance.new("TextBox")
-    input.Parent = ScrollFrame
-    input.Size = UDim2.new(0.92, 0, 0, 30) -- 高度缩小到 30
-    input.Position = UDim2.new(0.04, 0, 0, yPos)
+    input.Parent = parentPage
+    input.Size = UDim2.new(0.95, 0, 0, 30) 
+    input.Position = UDim2.new(0.025, 0, 0, yPos)
     input.BackgroundColor3 = Theme.InputBg
     input.BackgroundTransparency = 0.1
     input.Text = ""
@@ -374,27 +383,29 @@ local function CreateInput(placeholder, yPos, textColor)
 end
 
 -- ==========================================
--- 功能区域 (重新排版，间距缩小)
+-- 7. 功能实现 (分别放入不同的页面)
 -- ==========================================
-local SpeedInput = CreateInput("输入行走速度", 15, Theme.TextColor) SpeedInput.Text = "100"
+
+-- [Page 1: 基础]
+local SpeedInput = CreateInput(Page1, "输入行走速度", 15, Theme.TextColor) SpeedInput.Text = "100"
 local speedActive = false
-CreateToggle("自定义速度", 50, false, function(Value)
+CreateToggle(Page1, "自定义速度", 50, false, function(Value)
     speedActive = Value local char = Player.Character
     if char and char:FindFirstChild("Humanoid") then if speedActive then char.Humanoid.WalkSpeed = tonumber(SpeedInput.Text) or 16 else char.Humanoid.WalkSpeed = 16 end end
 end)
 SpeedInput.FocusLost:Connect(function() if speedActive then local char = Player.Character if char and char:FindFirstChild("Humanoid") then char.Humanoid.WalkSpeed = tonumber(SpeedInput.Text) or 16 end end end)
 
-local JumpInput = CreateInput("输入跳跃力", 90, Theme.TextColor) JumpInput.Text = "100"
+local JumpInput = CreateInput(Page1, "输入跳跃力", 90, Theme.TextColor) JumpInput.Text = "100"
 local jumpActive = false
-CreateToggle("自定义跳跃", 125, false, function(Value)
+CreateToggle(Page1, "自定义跳跃", 125, false, function(Value)
     jumpActive = Value local char = Player.Character
     if char and char:FindFirstChild("Humanoid") then if jumpActive then char.Humanoid.JumpPower = tonumber(JumpInput.Text) or 50 char.Humanoid.UseJumpPower = true else char.Humanoid.JumpPower = 50 end end
 end)
 JumpInput.FocusLost:Connect(function() if jumpActive then local char = Player.Character if char and char:FindFirstChild("Humanoid") then char.Humanoid.JumpPower = tonumber(JumpInput.Text) or 50 char.Humanoid.UseJumpPower = true end end end)
 
-local PulseInput = CreateInput("输入脉冲推力", 165, Color3.fromRGB(0, 150, 100)) PulseInput.Text = "2" 
+local PulseInput = CreateInput(Page1, "输入脉冲推力 (建议1-5)", 165, Color3.fromRGB(0, 150, 100)) PulseInput.Text = "2" 
 local pulseActive = false local renderConnection = nil local originalSpeed = 16 
-CreateToggle("脉冲加速", 200, false, function(Value)
+CreateToggle(Page1, "脉冲加速", 200, false, function(Value)
     pulseActive = Value local char = Player.Character
     if pulseActive then
         if char and char:FindFirstChild("Humanoid") then originalSpeed = char.Humanoid.WalkSpeed end
@@ -412,12 +423,12 @@ CreateToggle("脉冲加速", 200, false, function(Value)
 end)
 
 local isFlying = false local isBoosting = false local isLanding = false local flyConnection = nil local defaultFOV = workspace.CurrentCamera.FieldOfView 
-local boostToggleData = CreateToggle("极速冲刺 (FOV增强)", 275, false, function(Value)
+local boostToggleData = CreateToggle(Page1, "极速冲刺 (FOV增强)", 275, false, function(Value)
     isBoosting = Value
     if isBoosting then TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {FieldOfView = 110}):Play() else TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {FieldOfView = defaultFOV}):Play() end
 end)
 local BoostFrame = boostToggleData.Frame BoostFrame.Visible = false 
-CreateToggle("开启飞行", 240, false, function(Value)
+CreateToggle(Page1, "开启飞行", 240, false, function(Value)
     isFlying = Value local char = Player.Character
     if not char then return end local hrp = char:FindFirstChild("HumanoidRootPart") local hum = char:FindFirstChild("Humanoid") if not hrp or not hum then return end
     if isFlying then
@@ -440,8 +451,9 @@ CreateToggle("开启飞行", 240, false, function(Value)
     end
 end)
 
+-- [Page 2: 战斗]
 local isLocked = false local lockConnection = nil local lockedCFrame = nil
-CreateToggle("角色锁定", 315, false, function(Value)
+CreateToggle(Page2, "角色锁定", 15, false, function(Value)
     isLocked = Value local char = Player.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     if isLocked then
@@ -453,9 +465,9 @@ CreateToggle("角色锁定", 315, false, function(Value)
     end
 end)
 
-local TargetInput = CreateInput("输入玩家ID (留空=锁最近)", 355, Color3.fromRGB(200, 100, 100))
+local TargetInput = CreateInput(Page2, "输入玩家ID (留空=锁最近)", 55, Color3.fromRGB(200, 100, 100))
 local aimbotActive = false local aimbotConnection = nil
-CreateToggle("锁定玩家", 390, false, function(Value)
+CreateToggle(Page2, "锁定玩家", 90, false, function(Value)
     aimbotActive = Value
     if aimbotActive then
         aimbotConnection = RunService.RenderStepped:Connect(function()
@@ -468,9 +480,9 @@ CreateToggle("锁定玩家", 390, false, function(Value)
     else if aimbotConnection then aimbotConnection:Disconnect() aimbotConnection = nil end end
 end)
 
-local NpcInput = CreateInput("输入NPC名称 (留空=锁最近)", 430, Color3.fromRGB(0, 150, 100))
+local NpcInput = CreateInput(Page2, "输入NPC名称 (留空=锁最近)", 130, Color3.fromRGB(0, 150, 100))
 local aimbotNpcActive = false local aimbotNpcConnection = nil local currentNpcTarget = nil local lastScanTime = 0 
-CreateToggle("自动锁定NPC", 465, false, function(Value)
+CreateToggle(Page2, "自动锁定NPC", 165, false, function(Value)
     aimbotNpcActive = Value currentNpcTarget = nil 
     if aimbotNpcActive then
         aimbotNpcConnection = RunService.RenderStepped:Connect(function()
@@ -495,7 +507,7 @@ CreateToggle("自动锁定NPC", 465, false, function(Value)
 end)
 
 local isTrackingFling = false local savedCFrame = nil local trackingConnection = nil
-CreateToggle("究极暴力甩飞", 505, false, function(Value)
+CreateToggle(Page2, "究极暴力甩飞 (上方输ID)", 205, false, function(Value)
     isTrackingFling = Value local char = Player.Character
     if not char then return end local hrp = char:FindFirstChild("HumanoidRootPart") local hum = char:FindFirstChild("Humanoid") if not hrp or not hum then return end
     if isTrackingFling then
@@ -523,8 +535,20 @@ CreateToggle("究极暴力甩飞", 505, false, function(Value)
     end
 end)
 
+local isAntiFling = false local antiFlingConnection = nil
+CreateToggle(Page2, "防甩飞", 245, false, function(Value)
+    isAntiFling = Value local char = Player.Character
+    if not char then return end
+    if isAntiFling then
+        antiFlingConnection = RunService.Heartbeat:Connect(function()
+            if isAntiFling and char and char:FindFirstChild("HumanoidRootPart") then local hrp = char.HumanoidRootPart if hrp.Velocity.Magnitude > 150 or hrp.RotVelocity.Magnitude > 20 then hrp.Velocity = Vector3.new(0, 0, 0) hrp.RotVelocity = Vector3.new(0, 0, 0) end end
+        end)
+    else if antiFlingConnection then antiFlingConnection:Disconnect() end end
+end)
+
+-- [Page 3: 系统]
 local isShieldActive = false
-CreateToggle("主动反击盾", 545, false, function(Value)
+CreateToggle(Page3, "主动反击盾", 15, false, function(Value)
     isShieldActive = Value
     if isShieldActive then
         if not _G.MyHttpPostHooked then
@@ -548,20 +572,9 @@ CreateToggle("主动反击盾", 545, false, function(Value)
     end
 end)
 
-local isAntiFling = false local antiFlingConnection = nil
-CreateToggle("防甩飞", 585, false, function(Value)
-    isAntiFling = Value local char = Player.Character
-    if not char then return end
-    if isAntiFling then
-        antiFlingConnection = RunService.Heartbeat:Connect(function()
-            if isAntiFling and char and char:FindFirstChild("HumanoidRootPart") then local hrp = char.HumanoidRootPart if hrp.Velocity.Magnitude > 150 or hrp.RotVelocity.Magnitude > 20 then hrp.Velocity = Vector3.new(0, 0, 0) hrp.RotVelocity = Vector3.new(0, 0, 0) end end
-        end)
-    else if antiFlingConnection then antiFlingConnection:Disconnect() end end
-end)
-
-local MusicInput = CreateInput("输入音乐数字ID", 625, Theme.TextColor)
+local MusicInput = CreateInput(Page3, "输入音乐数字ID", 55, Theme.TextColor)
 local musicActive = false local currentMusic = nil
-CreateToggle("播放本地音乐", 660, false, function(Value)
+CreateToggle(Page3, "播放本地音乐", 90, false, function(Value)
     musicActive = Value local idString = MusicInput.Text
     if musicActive then
         if idString == "" then return end
@@ -575,13 +588,11 @@ CreateToggle("播放本地音乐", 660, false, function(Value)
     end
 end)
 
--- ==========================================
--- 底部按钮
--- ==========================================
+-- 关闭按钮
 local closeMenuBtn = Instance.new("TextButton")
-closeMenuBtn.Parent = ScrollFrame
-closeMenuBtn.Size = UDim2.new(0.92, 0, 0, 32) -- 高度缩小
-closeMenuBtn.Position = UDim2.new(0.04, 0, 0, 705) 
+closeMenuBtn.Parent = Page3
+closeMenuBtn.Size = UDim2.new(0.95, 0, 0, 32) 
+closeMenuBtn.Position = UDim2.new(0.025, 0, 0, 140) 
 closeMenuBtn.BackgroundColor3 = Color3.fromRGB(255, 235, 235)
 closeMenuBtn.Text = "关闭菜单"
 closeMenuBtn.TextColor3 = Color3.fromRGB(200, 60, 60)
@@ -591,6 +602,9 @@ closeMenuBtn.BorderSizePixel = 0
 local closeMenuBtnCorner = Instance.new("UICorner") closeMenuBtnCorner.CornerRadius = UDim.new(0, 6) closeMenuBtnCorner.Parent = closeMenuBtn
 local closeMenuBtnStroke = Instance.new("UIStroke") closeMenuBtnStroke.Color = Color3.fromRGB(255, 200, 200) closeMenuBtnStroke.Thickness = 1 closeMenuBtnStroke.Parent = closeMenuBtn
 
+-- ==========================================
+-- 8. 关闭逻辑
+-- ==========================================
 local function DestroyMenu()
     if renderConnection then renderConnection:Disconnect() end if flyConnection then flyConnection:Disconnect() end if lockConnection then lockConnection:Disconnect() end if aimbotConnection then aimbotConnection:Disconnect() end if aimbotNpcConnection then aimbotNpcConnection:Disconnect() end if trackingConnection then trackingConnection:Disconnect() end if antiFlingConnection then antiFlingConnection:Disconnect() end
     
@@ -641,7 +655,7 @@ MinBtn.MouseEnter:Connect(function() MinBtn.BackgroundColor3 = Color3.fromRGB(25
 MinBtn.MouseLeave:Connect(function() MinBtn.BackgroundColor3 = Color3.fromRGB(0,0,0) MinBtn.BackgroundTransparency = 1 end)
 
 -- ==========================================
--- 自动验证加载逻辑
+-- 加载完成
 -- ==========================================
 task.spawn(function()
     task.wait(1.5)
